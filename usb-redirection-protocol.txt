@@ -14,7 +14,7 @@ Version 0.2
 -Replace the synchroneous / asynchroneous commands nomenclature with
  control / data packets
 -Move the packet id to the main packet header shared by all packets
--Add note: "All integers in the protocol are send over the pipe in least
+-Add note: "All integers in the protocol are sent over the pipe in least
  significant byte first order."
 -Add note: "All structs are packed"
 -s/data_size/length/
@@ -47,7 +47,7 @@ Version 0.3.1, released 18 August 2011
 
 Version 0.3.2, released  3 January 2012
 -The usb_redir_device_connect_header has been extended with a
- device_version_bcd field. This is only send / received if both sides
+ device_version_bcd field. This is only sent / received if both sides
  have the usb_redir_cap_connect_device_version capability
 
 Version 0.3.3, released 12 January 2012
@@ -65,7 +65,7 @@ Version 0.4.1, released 25 February 2012
 Version 0.4.2, released  6 March 2012
 - Add usb_redir_babble status code
 - The usb_redir_ep_info_header has been extended with a max_packet_size field
-  This is only send / received if both sides have the
+  This is only sent / received if both sides have the
   usb_redir_cap_ep_info_max_packet_size capability
 
 Version 0.5,   released  7 September 2012
@@ -73,7 +73,7 @@ Version 0.5,   released  7 September 2012
 
 Version 0.5.3, released  7 October 2012
 - Extend the length field in bulk packets headers to 32 bits, the extra 16
-  bits are only send / received if both sides have the
+  bits are only sent / received if both sides have the
   usb_redir_cap_32bits_bulk_length capability
 
 Version 0.6,   released 13 December 2012
@@ -84,7 +84,7 @@ Version 0.6,   released 13 December 2012
 
 Version 0.7,   released 19 May 2014
 - The usb_redir_ep_info_header has been extended with a max_streams field
-  This is only send / received if both sides have the
+  This is only sent / received if both sides have the
   usb_redir_cap_bulk_streams capability.
 - Change bulk_stream packet definitions to allow allocating / freeing
   streams on multiple endpoints in one go, technically this is a protocol
@@ -104,8 +104,8 @@ hosted on another machine "b", and make the usb device show up inside the
 virtual machine as if it were attached directly to the virtual machine "v".
 
 The described protocol assumes a reliable ordered bidirectional transport is
-available, for example a tcp socket. All integers in the protocol are send
-over the pipe in least significant byte first order. All structs send over
+available, for example a tcp socket. All integers in the protocol are sent
+over the pipe in least significant byte first order. All structs sent over
 the pipe are packed (no padding).
 
 Definitions:
@@ -155,13 +155,13 @@ There are 2 types of packets:
 1) control packets
 2) data packets
 
-Control packets are handled synchroneously inside the usb-host, it will hand
+sControl packets are handled synchroneously inside the usb-host, it will hand
 the request over to the host os and then *wait* for a response. The usb-host
 will thus stop processing further packets. Where as for data packets the
 usb-host hands them over to the host os with the request to let the usb-host
 process know when there is a respone from the usb-device.
 
-Note that control packets should only be send to the usb-host when no data
+Note that control packets should only be sent to the usb-host when no data
 packets are pending on the device / interface / endpoint affected by the
 control packet. Any pending data packets will get dropped, and any active
 iso streams / allocated bulk streams will get stopped / free-ed.
@@ -242,8 +242,8 @@ struct usb_redir_hello_header {
 
 No packet type specific additional data.
 
-A packet of this type is send by both sides as soon as a connection is
-establised. It is mandatory that this packet is the first packet send by
+A packet of this type is sent by both sides as soon as a connection is
+establised. It is mandatory that this packet is the first packet sent by
 both sides! This packet contains:
 version:       A free form 0 terminated version string, useful for logging
                should not be parsed! Suggested format: "qemu 0.13",
@@ -305,18 +305,18 @@ struct usb_redir_device_connect_header {
 
 No packet type specific additional data.
 
-This packet gets send by the usb-host when a device becomes available (it is
+This packet gets sent by the usb-host when a device becomes available (it is
 possible for the usb-host to wait for a device to get plugged in).
 
-The device_version_bcd field should only be send (and expected on receive)
+The device_version_bcd field should only be sent (and expected on receive)
 when both sides have the usb_redir_cap_connect_device_version capability.
 If this is not the case the length of the packet will be 2 bytes less!
 
 Note that a usb-host may re-use the existing connection for a new / re-plugged
-device in this case this packet can be send after a usb_redir_device_disconnect
+device in this case this packet can be sent after a usb_redir_device_disconnect
 message to notify the usb-guest that a new device is available.
 
-Note the usbredir-host *must* first send usb_redir_ep_info followed by
+Note the usbredir-host *must* first sent usb_redir_ep_info followed by
 usb_redir_interface_info before sending the usb_redir_device_connect_info!
 
 usb_redir_device_disconnect
@@ -330,9 +330,9 @@ No packet type specific header.
 
 No packet type specific additional data.
 
-This packet may be send by the usb-host to indicate that the device has been
+This packet may be sent by the usb-host to indicate that the device has been
 disconnect (unplugged). Note on some platforms the usb-host may not become
-aware of the disconnection until a usb packet is send to the device.
+aware of the disconnection until a usb packet is sent to the device.
 
 usb_redir_reset
 ---------------
@@ -344,10 +344,10 @@ No packet type specific header.
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to cause a reset of the usb
+This packet can be sent by the usb-guest to cause a reset of the usb
 device. Note that of things go wrong the usb-host may be unable to re-connect
 to the device after the reset! If this happens a usb_redir_device_disconnect
-packet will be send by the usb-host.
+packet will be sent by the usb-host.
 
 usb_redir_interface_info
 ------------------------
@@ -366,9 +366,9 @@ struct usb_redir_interface_info_header {
 
 No packet type specific additional data.
 
-This packet gets send by the usb-host to inform the usb-guest about the
+This packet gets sent by the usb-host to inform the usb-guest about the
 interfaces of the device. It contains the interface number, class and protocol
-info for interface_count interfaces. This gets send after a (successful)
+info for interface_count interfaces. This gets sent after a (successful)
 initial connection, set_config and set_alt_setting.
 
 usb_redir_ep_info
@@ -397,16 +397,16 @@ struct usb_redir_ep_info_header {
 
 No packet type specific additional data.
 
-This packet gets send by the usb-host to let the usb-guest know the endpoint
+This packet gets sent by the usb-host to let the usb-guest know the endpoint
 type, interval and interface it belongs to for all possible endpoints,
-first 0-15 out, then 0-15 in. This gets send after a (successful) initial
+first 0-15 out, then 0-15 in. This gets sent after a (successful) initial
 connection, set_config and set_alt_setting.
 
-The max_packet_size field should only be send (and expected on receive)
+The max_packet_size field should only be sent (and expected on receive)
 when both sides have the usb_redir_cap_ep_info_max_packet_size capability.
 If this is not the case the length of the packet will be 64 bytes less!
 
-The max_streams field should only be send (and expected on receive)
+The max_streams field should only be sent (and expected on receive)
 when both sides have the usb_redir_cap_bulk_streams capability. If this is
 not the case the length of the packet will be 128 bytes less!
 
@@ -428,7 +428,7 @@ struct usb_redir_set_configuration_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to set (change) the active
+This packet can be sent by the usb-guest to set (change) the active
 configuration of the usb-device.
 
 usb_redir_get_configuration
@@ -441,7 +441,7 @@ No packet type specific header.
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to get (query) the active
+This packet can be sent by the usb-guest to get (query) the active
 configuration of the usb-device.
 
 usb_redir_configuration_status
@@ -457,7 +457,7 @@ struct usb_redir_configuration_status_header {
 
 No packet type specific additional data.
 
-This is send by the usb-host in response to a usb_redir_set_configuration /
+This is sent by the usb-host in response to a usb_redir_set_configuration /
 usb_redir_get_configuration packet. It reports a status code and on success
 the resulting / active configuration.
 
@@ -481,7 +481,7 @@ struct usb_redir_set_alt_setting_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to set (change) the alt_setting of
+This packet can be sent by the usb-guest to set (change) the alt_setting of
 interface <interface> to <alt>.
 
 usb_redir_get_alt_setting
@@ -496,7 +496,7 @@ struct usb_redir_get_alt_setting_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to get (query) the active
+This packet can be sent by the usb-guest to get (query) the active
 alt_setting of an interface of the usb-device.
 
 usb_redir_alt_setting_status
@@ -513,12 +513,12 @@ struct usb_redir_alt_setting_status_header {
 
 No packet type specific additional data.
 
-This is send by the usb-host in response to a usb_redir_set_alt_setting /
+This is sent by the usb-host in response to a usb_redir_set_alt_setting /
 usb_redir_get_alt_setting packet. It reports a status code, the affected
 interface and on success the resulting / active alt_setting for that interface.
 
 Note that after a successful usb_redir_set_alt_setting command the
-usbredir-host *must* first send usb_redir_ep_info followed by
+usbredir-host *must* first sent usb_redir_ep_info followed by
 usb_redir_interface_info before sending the usb_redir_alt_setting_status,
 to ensure the usb-guest has the new info when it starts using the new
 alt setting.
@@ -538,7 +538,7 @@ struct usb_redir_start_iso_stream_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to start a iso stream on the
+This packet can be sent by the usb-guest to start a iso stream on the
 designated endpoint of the usb-device.
 
 This function allocates no_urbs urbs with pkts_per_urb iso packets/frames
@@ -559,7 +559,7 @@ struct usb_redir_stop_iso_stream_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to stop an iso stream on the
+This packet can be sent by the usb-guest to stop an iso stream on the
 designated endpoint. This will cancel all pending urbs, flush the usb-host's
 buffers and free all relevant resources. Note that the usb-guest can still
 receive isoc data packets from an isoc in endpoint after sending this, as
@@ -578,13 +578,13 @@ struct usb_redir_iso_stream_status_header {
 
 No packet type specific additional data.
 
-This packet is send by the usb-host in response to a
+This packet is sent by the usb-host in response to a
 usb_redir_start_iso_stream or usb_redir_stop_iso_stream packet. Note that
 for the starting of output iso streams a success status only indicates that
 all the buffers were successfully allocated, the actual stream is not
 started until enough packets are buffered.
 
-Note that this can also be send unsolicited by a usb-host in case of an
+Note that this can also be sent unsolicited by a usb-host in case of an
 error with an iso output stream, see usb_redir_iso_packet.
 
 To allow the usb-guest to detect if the stream was adversely stopped, the
@@ -604,7 +604,7 @@ struct usb_redir_start_interrupt_receiving_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to start receiving interrupts
+This packet can be sent by the usb-guest to start receiving interrupts
 from the designated endpoint of the usb-device.
 
 This function is for *input* interrupt endpoints only. Input interrupt
@@ -629,7 +629,7 @@ struct usb_redir_stop_interrupt_receiving_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to stop interrupt receiving on the
+This packet can be sent by the usb-guest to stop interrupt receiving on the
 designated endpoint. This will cancel the pending urb. Note that the usb-guest
 can still receive usb_redir_interrupt_packet-s after sending this, as
 some data packets may already be inside the transport pipe.
@@ -647,11 +647,11 @@ struct usb_redir_interrupt_receiving_status_header {
 
 No packet type specific additional data.
 
-This packet is send by the usb-host in response to a
+This packet is sent by the usb-host in response to a
 usb_redir_start_interrupt_receiving or usb_redir_stop_interrupt_receiving
 packet.
 
-Note that this can also be send unsolicited by a usb-host in case of an
+Note that this can also be sent unsolicited by a usb-host in case of an
 error re-submitting the interrupt urb.
 
 To allow the usb-guest to detect if the stream was adversely stopped, the
@@ -672,7 +672,7 @@ struct usb_redir_alloc_bulk_streams_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to the usb-host to request
+This packet can be sent by the usb-guest to the usb-host to request
 that the usb-host allocates IDs so the usb-guest can use up to no_streams
 stream IDs on the endpoints indicated by the endpoints bitmask. Endpoints in
 the bitmask are indicated by bit number (0-31) using the same numbering as
@@ -690,7 +690,7 @@ struct usb_redir_free_bulk_streams_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to the usb-host to free any
+This packet can be sent by the usb-guest to the usb-host to free any
 bulk streams previously allocated on the endpoints indicated by the
 endpoints bitmask.
 
@@ -708,7 +708,7 @@ struct usb_redir_bulk_streams_status_header {
 
 No packet type specific additional data.
 
-This packet is send by the usb-host in response to a
+This packet is sent by the usb-host in response to a
 usb_redir_alloc_bulk_streams or usb_redir_free_bulk_streams packet.
 
 For usb_redir_alloc_bulk_streams responses no_streams will be the no_streams
@@ -735,7 +735,7 @@ struct usb_redir_start_bulk_receiving_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to start buffered reading from a
+This packet can be sent by the usb-guest to start buffered reading from a
 bulk endpoint.
 
 Upon receiving this packet the usb-host will submit no_transfers bulk in
@@ -746,7 +746,7 @@ and immediately re-submit the completed transfer.
 
 Note bytes_per_transfer must be a multiple of the endpoints max_packet_size.
 
-Note this packet should only be send to usb-hosts with the
+Note this packet should only be sent to usb-hosts with the
 usb_redir_cap_bulk_receiving capability.
 
 usb_redir_stop_bulk_receiving
@@ -762,12 +762,12 @@ struct usb_redir_stop_bulk_receiving_header {
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to stop bulk receiving on the
+This packet can be sent by the usb-guest to stop bulk receiving on the
 designated endpoint. This will cancel all pending transfers. Note that the
 usb-guest can still receive usb_redir_bulk_packet-s after sending this, as
 some data packets may already be inside the transport pipe.
 
-Note this packet should only be send to usb-hosts with the
+Note this packet should only be sent to usb-hosts with the
 usb_redir_cap_bulk_receiving capability.
 
 usb_redir_bulk_receiving_status
@@ -784,17 +784,17 @@ struct usb_redir_bulk_receiving_status_header {
 
 No packet type specific additional data.
 
-This packet is send by the usb-host in response to a
+This packet is sent by the usb-host in response to a
 usb_redir_start_bulk_receiving or usb_redir_stop_bulk_receiving packet.
 
-Note that this can also be send unsolicited by an usb-host in case of an
+Note that this can also be sent unsolicited by an usb-host in case of an
 error re-submitting the bulk transfer.
 
 To allow the usb-guest to detect if the stream was adversely stopped, the
 usb-host will always report usb_redir_stall as status if the stream was
 stopped for any reason other then an usb_redir_stop_interrupt_receiving.
 
-Note this packet should only be send to usb-guests with the
+Note this packet should only be sent to usb-guests with the
 usb_redir_cap_bulk_receiving capability.
 
 
@@ -809,7 +809,7 @@ No packet type specific header.
 
 No packet type specific additional data.
 
-This packet can be send by the usb-guest to cancel an earlier send data
+This packet can be sent by the usb-guest to cancel an earlier sent data
 packet, the id should be set to the id used when sending the packet the
 guest now wishes to cancel.
 
@@ -829,9 +829,9 @@ No packet type specific header.
 
 No packet type specific additional data.
 
-This packet is send by the usb-guest after receiving a usb_redir_device_connect
+This packet is sent by the usb-guest after receiving a usb_redir_device_connect
 or usb_redir_interface_info packet which was rejected by an usb-guest side
-device filter. This packet should only be send to usb-hosts with the
+device filter. This packet should only be sent to usb-hosts with the
 usb_redir_cap_filter capability.
 
 usb_redir_filter_filter
@@ -845,7 +845,7 @@ No packet type specific header.
 
 The additional data contains a 0 terminated usredirfilter string.
 
-This packet can be send directly after the hello packet to inform the other
+This packet can be sent directly after the hello packet to inform the other
 side that a filter is in place and some devices may be rejected.
 
 An usredirfilter consists of one or more rules, where in string form each rule
@@ -864,7 +864,7 @@ the device will be rejected.
 
 For more info on filtering see usbredirfilter.h
 
-This packet should only be send to peers with the usb_redir_cap_filter
+This packet should only be sent to peers with the usb_redir_cap_filter
 capability.
 
 usb_redir_device_disconnect_ack
@@ -878,15 +878,15 @@ No packet type specific header.
 
 No packet type specific additional data.
 
-This packet is send by the usb-guest after having processed a
-usb_redir_device_disconnect packet send by the usb-host. This allows an
+This packet is sent by the usb-guest after having processed a
+usb_redir_device_disconnect packet sent by the usb-host. This allows an
 usb-host which wants to re-use an existing connection to know that the
 usb-guest has seen the disconnect and will not send any more packets intended
 for the disconnected device. Without this there is a race where the usb-host
 may have a new device available, but it is still receiving packets intended for
 the old device as the usb-guest has not yet seen the disconnect.
 
-Note this packet is only send if both sides have the
+Note this packet is only sent if both sides have the
 usb_redir_cap_device_disconnect_ack capability.
 
 
@@ -906,9 +906,9 @@ struct usb_redir_control_packet_header {
     uint16_t length;
 }
 
-The additional data contains the control msg data to be send / received.
+The additional data contains the control msg data to be sent / received.
 
-Packets of this type can be send by the usb-guest to the usb-host to
+Packets of this type can be sent by the usb-guest to the usb-host to
 initiate a control transfer on the usb-device. endpoint, request, requesttype,
 value and index have their standard meaning for usb control messages.
 The status field is only used in the usb-host's response.
@@ -938,16 +938,16 @@ struct usb_redir_bulk_packet_header {
     uint16_t length_high; /* High 16 bits of the packet length */
 }
 
-The additional data contains the bulk msg data to be send / received.
+The additional data contains the bulk msg data to be sent / received.
 
-Packets of this type can be send by the usb-guest to the usb-host to
+Packets of this type can be sent by the usb-guest to the usb-host to
 initiate a bulk transfer on the usb-device. endpoint and stream_id have
 their standard meaning for usb bulk messages. The status field is only used
 in the usb-host's response. length is the amount of data the usb-guest is
 sending / expects to read (depending on the direction of the endpoint).
 
 length_high contains the 16 high bits of length to allow packets larger
-then 65535 bytes, it is only send/received if both sides have the
+then 65535 bytes, it is only sent/received if both sides have the
 usb_redir_cap_32bits_bulk_length capability.
 
 When the bulk msg has been processed by the usb-device the usb-host sends
@@ -973,20 +973,20 @@ struct usb_redir_iso_packet_header {
     uint16_t length;
 }
 
-The additional data contains the iso msg data to be send / received.
+The additional data contains the iso msg data to be sent / received.
 
-Packets of this type should be send continuesly (at the endpoint interval
+Packets of this type should be sent continuesly (at the endpoint interval
 speed) as soon as an iso stream is started using usb_redir_start_iso_stream
-the direction in which they gets send depends on the endpoints direction.
+the direction in which they get sent depends on the endpoints direction.
 
-The status field only has meaning for packets send from the usb-host to
+The status field only has meaning for packets sent from the usb-host to
 the usb-guest (for iso input endpoints). Due to buffering it is not possibly
 to timely notify the usb-guest of transfer errors for iso output packets. The
 usb-host will try to clear any error conditions itself. If it fails to do
 so it will send a usb_redir_iso_stream_status to the usb-guest indicating
 there is a problem with the iso stream.
 
-Since usb_redir_iso_packet's are send continuously by the usb-host once
+Since usb_redir_iso_packet's are sent continuously by the usb-host once
 a stream is started on an iso input endpoint, the usb-host cannot set the
 usb_redir_header.id to the id of the corresponding received packet. So for
 usb_redir_iso_packet's the usb-host simply starts with an id of 0 and
@@ -1006,7 +1006,7 @@ struct usb_redir_interrupt_packet_header {
     uint16_t length;
 }
 
-The additional data contains the interrupt msg data to be send / received.
+The additional data contains the interrupt msg data to be sent / received.
 
 The handling of interrupt endpoints differs significantly depending on wether
 the endpoint is an input or output endpoint.
@@ -1020,9 +1020,9 @@ the usb-host takes care of the submitting and re-submitting of urbs, the
 usb-guest can start / stop the receiving of interrupt packets using the
 usb_redir_start_interrupt_receiving / usb_redir_stop_interrupt_receiving
 packets. Note that for an input interrupt endpoint usb_redir_interrupt_packet-s
-are only send in one direction, from the usb-host to the usb-guest!
+are only sent in one direction, from the usb-host to the usb-guest!
 
-Since usb_redir_interrupt_packet's are send unsolicited by the usb-host once
+Since usb_redir_interrupt_packet's are sent unsolicited by the usb-host once
 interrupt receiving has started, the usb-host cannot set the
 usb_redir_header.id to the id of the corresponding received packet. So for
 usb_redir_interrupt_packet's the usb-host simply starts with an id of 0 and
@@ -1039,7 +1039,7 @@ The usb-guest sends a usb_redir_interrupt_packet to the usb-host. When the
 interrupt msg has been processed by the usb-device the usb-host sends
 a usb_redir_interrupt_packet back to the usb-guest, with the status field and
 length updated to match the actual results. This packet only has additional
-data (the data to output) when send from usb-guest to usb-host.
+data (the data to output) when sent from usb-guest to usb-host.
 
 Note that since unlike with iso data there is usually no notion of a stream
 with interrupt data, buffering makes no sense for output interrupt packets,
@@ -1053,7 +1053,7 @@ usb_redir_buffered_bulk_packet
 
 usb_redir_header.type:    usb_redir_bulk_packet
 usb_redir_header.length:  sizeof(usb_redir_bulk_packet_header) + length
-usb_redir_header.id:      starts at 0, incremented by 1 per send packet
+usb_redir_header.id:      starts at 0, incremented by 1 per sent packet
 
 struct usb_redir_buffered_bulk_packet_header {
     uint32_t stream_id;
@@ -1072,10 +1072,10 @@ re-submitting of bulk transfers. The usb-guest can start / stop the receiving
 of buffered bulk data using the usb_redir_start_bulk_receiving /
 usb_redir_stop_bulk_receiving packets.
 
-Note that usb_redir_buffered_bulk_packet-s are only send in one direction,
+Note that usb_redir_buffered_bulk_packet-s are only sent in one direction,
 from the usb-host to the usb-guest!
 
-Since usb_redir_buffered_bulk_packet-s are send unsolicited by the usb-host
+Since usb_redir_buffered_bulk_packet-s are sent unsolicited by the usb-host
 once bulk receiving has started, the usb-host cannot set the
 usb_redir_header.id to the id of the corresponding received packet. So for
 usb_redir_buffered_bulk_packet-s the usb-host simply starts with an id of 0 and
